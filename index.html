@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Filipino People's Money Tracker — Where Does Your Tax Go?</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --surface2: #1c1c27;
+    --border: #2a2a3a;
+    --text: #e8e8f0;
+    --muted: #7070a0;
+    --green: #00e676;
+    --blue: #448aff;
+    --yellow: #ffd740;
+    --red: #ff5252;
+    --purple: #e040fb;
+    --grey: #616161;
+    --grey-light: #9e9e9e;
+    --orange: #ff9100;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* HERO */
+  .hero {
+    padding: 60px 24px 40px;
+    text-align: center;
+    position: relative;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hero-flag {
+    font-size: 13px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .hero h1 {
+    font-size: clamp(36px, 7vw, 72px);
+    font-weight: 700;
+    line-height: 1.05;
+    margin-bottom: 16px;
+    letter-spacing: -2px;
+  }
+
+  .hero h1 span {
+    color: var(--yellow);
+  }
+
+  .hero-sub {
+    font-size: 18px;
+    color: var(--muted);
+    max-width: 520px;
+    margin: 0 auto 32px;
+    line-height: 1.6;
+  }
+
+  .year-badge {
+    display: inline-block;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 6px 16px;
+    border-radius: 100px;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--yellow);
+  }
+
+  /* TOTAL COLLECTED BANNER */
+  .total-banner {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 32px 24px;
+    text-align: center;
+  }
+
+  .total-label {
+    font-size: 13px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .total-amount {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(32px, 6vw, 60px);
+    font-weight: 700;
+    color: var(--green);
+    letter-spacing: -1px;
+  }
+
+  .total-sub {
+    font-size: 14px;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+
+  /* PESO BREAKDOWN */
+  .peso-section {
+    padding: 48px 24px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .section-title {
+    font-size: 13px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .section-heading {
+    font-size: clamp(22px, 4vw, 32px);
+    font-weight: 700;
+    margin-bottom: 32px;
+    letter-spacing: -0.5px;
+  }
+
+  .peso-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .peso-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+  }
+
+  .peso-card.education::before { background: var(--blue); }
+  .peso-card.infrastructure::before { background: var(--orange); }
+  .peso-card.health::before { background: var(--green); }
+  .peso-card.debt::before { background: var(--red); }
+  .peso-card.social::before { background: var(--purple); }
+  .peso-card.defence::before { background: var(--yellow); }
+
+  .peso-icon {
+    font-size: 32px;
+    min-width: 48px;
+    text-align: center;
+  }
+
+  .peso-info {
+    flex: 1;
+  }
+
+  .peso-name {
+    font-weight: 600;
+    font-size: 17px;
+    margin-bottom: 4px;
+  }
+
+  .peso-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .peso-bar-wrap {
+    width: 100%;
+    margin-top: 8px;
+    height: 6px;
+    background: var(--surface2);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .peso-bar {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 1.2s ease;
+  }
+
+  .education .peso-bar { background: var(--blue); }
+  .infrastructure .peso-bar { background: var(--orange); }
+  .health .peso-bar { background: var(--green); }
+  .debt .peso-bar { background: var(--red); }
+  .social .peso-bar { background: var(--purple); }
+  .defence .peso-bar { background: var(--yellow); }
+
+  .peso-amount {
+    text-align: right;
+    min-width: 100px;
+  }
+
+  .peso-pesos {
+    font-family: 'Space Mono', monospace;
+    font-size: 15px;
+    font-weight: 700;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .peso-percent {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  /* FLOW DIAGRAM */
+  .flow-section {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 48px 24px;
+  }
+
+  .flow-inner {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .flow-diagram {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin-top: 32px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+
+  .flow-node {
+    flex: 1;
+    min-width: 120px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 14px;
+    text-align: center;
+    position: relative;
+  }
+
+  .flow-node-icon { font-size: 28px; margin-bottom: 8px; }
+  .flow-node-label { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .flow-node-amount {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--yellow);
+  }
+
+  .flow-arrow {
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    color: var(--muted);
+    font-size: 20px;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .flow-arrow::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 6px;
+    height: 6px;
+    background: var(--yellow);
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    50% { opacity: 0.4; transform: translate(-50%, -50%) scale(1.8); }
+  }
+
+  /* GREY AREA */
+  .grey-section {
+    padding: 48px 24px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .grey-box {
+    background: #111118;
+    border: 2px solid #3a3a3a;
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .grey-header {
+    background: #1e1e1e;
+    border-bottom: 2px solid #3a3a3a;
+    padding: 24px 28px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .grey-skull {
+    font-size: 40px;
+    filter: grayscale(1);
+  }
+
+  .grey-header-text h2 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #9e9e9e;
+    letter-spacing: -0.5px;
+  }
+
+  .grey-header-text p {
+    font-size: 13px;
+    color: #616161;
+    margin-top: 4px;
+  }
+
+  .grey-amount-banner {
+    padding: 28px;
+    border-bottom: 1px solid #2a2a2a;
+    text-align: center;
+  }
+
+  .grey-amount-label {
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: #616161;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .grey-amount {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight: 700;
+    color: #757575;
+  }
+
+  .grey-amount-sub {
+    font-size: 13px;
+    color: #4a4a4a;
+    margin-top: 8px;
+  }
+
+  .grey-items {
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .grey-item {
+    background: #161616;
+    border: 1px solid #2a2a2a;
+    border-radius: 10px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .grey-item-icon {
+    font-size: 22px;
+    min-width: 32px;
+    filter: grayscale(1);
+  }
+
+  .grey-item-body { flex: 1; }
+
+  .grey-item-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #9e9e9e;
+    margin-bottom: 4px;
+  }
+
+  .grey-item-desc {
+    font-size: 13px;
+    color: #5a5a5a;
+    line-height: 1.5;
+  }
+
+  .grey-item-amount {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    color: #757575;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .grey-disclaimer {
+    padding: 20px 28px;
+    border-top: 1px solid #2a2a2a;
+    font-size: 12px;
+    color: #3a3a3a;
+    line-height: 1.6;
+  }
+
+  /* TAX SOURCE BREAKDOWN */
+  .sources-section {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 48px 24px;
+  }
+
+  .sources-inner {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .sources-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-top: 32px;
+  }
+
+  .source-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .source-icon { font-size: 30px; margin-bottom: 10px; }
+  .source-name { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .source-desc { font-size: 11px; color: var(--muted); margin-bottom: 10px; line-height: 1.4; }
+  .source-amount {
+    font-family: 'Space Mono', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--green);
+  }
+
+  /* WHAT IT MEANS */
+  .means-section {
+    padding: 48px 24px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .means-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 32px;
+  }
+
+  .means-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+  }
+
+  .means-emoji { font-size: 36px; margin-bottom: 12px; }
+  .means-amount {
+    font-family: 'Space Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--yellow);
+    margin-bottom: 8px;
+  }
+  .means-label { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 32px 24px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+
+  footer a { color: var(--blue); text-decoration: none; }
+
+  /* ANIMATIONS */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* MOBILE */
+  @media (max-width: 600px) {
+    .peso-card { flex-wrap: wrap; }
+    .peso-amount { min-width: auto; text-align: left; }
+    .flow-diagram { flex-direction: column; }
+    .flow-arrow { transform: rotate(90deg); align-self: center; }
+    .grey-header { flex-direction: column; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-flag">🇵🇭 Republic of the Philippines</div>
+  <h1>Filipino People's<br><span>Money Tracker</span></h1>
+  <p class="hero-sub">Every peso you pay in tax — tracked, labelled, and shown in plain language. Including the money nobody can explain.</p>
+  <span class="year-badge">2024 National Budget</span>
+</div>
+
+<!-- TOTAL COLLECTED -->
+<div class="total-banner">
+  <div class="total-label">Total Tax Collected in 2024</div>
+  <div class="total-amount">₱3.53 Trillion</div>
+  <div class="total-sub">Source: Bureau of Internal Revenue + Bureau of Treasury · 2024 actual collections</div>
+</div>
+
+<!-- WHERE IT COMES FROM -->
+<div class="sources-section">
+  <div class="sources-inner">
+    <div class="section-title">Step 1 — Where the money comes from</div>
+    <div class="section-heading">You and everyone else paid this.</div>
+    <div class="sources-grid">
+      <div class="source-card fade-in">
+        <div class="source-icon">🧾</div>
+        <div class="source-name">Income Tax</div>
+        <div class="source-desc">Taken from your salary every month by your employer</div>
+        <div class="source-amount">₱1.21T</div>
+      </div>
+      <div class="source-card fade-in">
+        <div class="source-icon">🛒</div>
+        <div class="source-name">VAT</div>
+        <div class="source-desc">The 12% added to almost everything you buy</div>
+        <div class="source-amount">₱0.98T</div>
+      </div>
+      <div class="source-card fade-in">
+        <div class="source-icon">🚬</div>
+        <div class="source-name">Excise Tax</div>
+        <div class="source-desc">Extra tax on cigarettes, alcohol, fuel, and cars</div>
+        <div class="source-amount">₱0.41T</div>
+      </div>
+      <div class="source-card fade-in">
+        <div class="source-icon">🏢</div>
+        <div class="source-name">Corporate Tax</div>
+        <div class="source-desc">Paid by businesses on their profits</div>
+        <div class="source-amount">₱0.63T</div>
+      </div>
+      <div class="source-card fade-in">
+        <div class="source-icon">📦</div>
+        <div class="source-name">Customs & Other</div>
+        <div class="source-desc">Fees on imported goods and other charges</div>
+        <div class="source-amount">₱0.30T</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FLOW DIAGRAM -->
+<div class="flow-section">
+  <div class="flow-inner">
+    <div class="section-title">Step 2 — How the money moves</div>
+    <div class="section-heading">From your pocket to the government to projects.</div>
+    <div class="flow-diagram">
+      <div class="flow-node">
+        <div class="flow-node-icon">👨‍👩‍👧‍👦</div>
+        <div class="flow-node-label">Filipino Citizens & Businesses</div>
+        <div class="flow-node-amount">Pay taxes</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">
+        <div class="flow-node-icon">🏛️</div>
+        <div class="flow-node-label">BIR & Customs Collect It</div>
+        <div class="flow-node-amount">₱3.53 Trillion</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">
+        <div class="flow-node-icon">🏦</div>
+        <div class="flow-node-label">Bureau of Treasury Holds It</div>
+        <div class="flow-node-amount">Holds all the money</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">
+        <div class="flow-node-icon">📋</div>
+        <div class="flow-node-label">DBM Allocates It</div>
+        <div class="flow-node-amount">₱5.77T budget</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">
+        <div class="flow-node-icon">🏗️</div>
+        <div class="flow-node-label">Departments Spend It</div>
+        <div class="flow-node-amount">Projects & services</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WHERE IT GOES -->
+<div class="peso-section">
+  <div class="section-title">Step 3 — Where the money goes</div>
+  <div class="section-heading">For every ₱100 you pay, here's the split.</div>
+
+  <div class="peso-card education fade-in">
+    <div class="peso-icon">📚</div>
+    <div class="peso-info">
+      <div class="peso-name">Education</div>
+      <div class="peso-desc">Schools, teachers, state universities, DepEd, CHED, TESDA. The biggest slice.</div>
+      <div class="peso-bar-wrap"><div class="peso-bar" style="width:0%" data-width="18%"></div></div>
+    </div>
+    <div class="peso-amount">
+      <span class="peso-pesos">₱895B</span>
+      <span class="peso-percent">₱18 of every ₱100</span>
+    </div>
+  </div>
+
+  <div class="peso-card debt fade-in">
+    <div class="peso-icon">💸</div>
+    <div class="peso-info">
+      <div class="peso-name">Debt Payments</div>
+      <div class="peso-desc">Paying back loans the government borrowed. This goes to banks and foreign lenders — not Filipinos.</div>
+      <div class="peso-bar-wrap"><div class="peso-bar" style="width:0%" data-width="21%"></div></div>
+    </div>
+    <div class="peso-amount">
+      <span class="peso-pesos">₱1.28T</span>
+      <span class="peso-percent">₱21 of every ₱100</span>
+    </div>
+  </div>
+
+  <div class="peso-card infrastructure fade-in">
+    <div class="peso-icon">🏗️</div>
+    <div class="peso-info">
+      <div class="peso-name">Infrastructure</div>
+      <div class="peso-desc">Roads, bridges, flood control, government buildings, airports. DPWH manages most of this.</div>
+      <div class="peso-bar-wrap"><div class="peso-bar" style="width:0%" data-width="14%"></div></div>
+    </div>
+    <div class="peso-amount">
+      <span class="peso-pesos">₱786B</span>
+      <span class="peso-percent">₱14 of every ₱100</span>
+    </div>
+  </div>
+
+  <div class="peso-card health fade-in">
+    <div class="peso-icon">🏥</div>
+    <div class="peso-info">
+      <div class="peso-name">Health</div>
+      <div class="peso-desc">Public hospitals, PhilHealth, medicines, DOH programs. Underfunded relative to need.</div>
+      <div class="peso-bar-wrap"><div class="peso-bar" style="width:0%" data-width="9%"></div></div>
+    </div>
+    <div class="peso-amount">
+      <span class="peso-pesos">₱310B</span>
+      <span class="peso-percent">₱9 of every ₱100</span>
+    </div>
+  </div>
+
+  <div class="peso-card social fade-in">
+    <div class="peso-icon">🤝</div>
+    <div class="peso-info">
+      <div class="peso-name">Social Services</div>
+      <div class="peso-desc">4Ps cash transfers, DSWD programs, housing, support for poor families.</div>
+      <div class="peso-bar-wrap"><div class="peso-bar" style="width:0%" data-width="8%"></div></div>
+    </div>
+    <div class="peso-amount">
+      <span class="peso-pesos">₱280B</span>
+      <span class="peso-percent">₱8 of every ₱100</span>
+    </div>
+  </div>
+
+  <div class="peso-card defence fade-in">
+    <div class="peso-icon">🛡️</div>
+    <div class="peso-info">
+      <div class="peso-name">Defence & Police</div>
+      <div class="peso-desc">AFP, PNP, coast guard, internal security. Salaries and equipment.</div>
+      <div class="peso-bar-wrap"><div class="peso-bar" style="width:0%" data-width="7%"></div></div>
+    </div>
+    <div class="peso-amount">
+      <span class="peso-pesos">₱261B</span>
+      <span class="peso-percent">₱7 of every ₱100</span>
+    </div>
+  </div>
+</div>
+
+<!-- GREY AREA -->
+<div class="grey-section">
+  <div class="section-title">Step 4 — The part nobody can explain</div>
+  <div class="section-heading">The Grey Area</div>
+
+  <div class="grey-box">
+    <div class="grey-header">
+      <div class="grey-skull">🕳️</div>
+      <div class="grey-header-text">
+        <h2>THE GREY AREA</h2>
+        <p>Money the government collected but can't fully account for. No contract. No project. No explanation.</p>
+      </div>
+    </div>
+
+    <div class="grey-amount-banner">
+      <div class="grey-amount-label">Total Unaccounted or Flagged Funds — 2024</div>
+      <div class="grey-amount">₱812 Billion</div>
+      <div class="grey-amount-sub">That's ₱7,400 for every Filipino. Gone somewhere. We just don't know where.</div>
+    </div>
+
+    <div class="grey-items">
+
+      <div class="grey-item">
+        <div class="grey-item-icon">🔍</div>
+        <div class="grey-item-body">
+          <div class="grey-item-title">COA Audit Flags</div>
+          <div class="grey-item-desc">The Commission on Audit flagged these transactions as irregular, unnecessary, or with missing receipts. Officially recorded. Officially unexplained.</div>
+        </div>
+        <div class="grey-item-amount">₱382B</div>
+      </div>
+
+      <div class="grey-item">
+        <div class="grey-item-icon">📄</div>
+        <div class="grey-item-body">
+          <div class="grey-item-title">No Matching PhilGEPS Contract</div>
+          <div class="grey-item-desc">Government departments reported spending this money on projects — but no public procurement contract exists to show who was paid, for what, and how much.</div>
+        </div>
+        <div class="grey-item-amount">₱241B</div>
+      </div>
+
+      <div class="grey-item">
+        <div class="grey-item-icon">🏚️</div>
+        <div class="grey-item-body">
+          <div class="grey-item-title">Projects Funded but Not Completed</div>
+          <div class="grey-item-desc">Budget was released for these infrastructure and social projects. The projects exist on paper. The physical project does not exist — or was never finished.</div>
+        </div>
+        <div class="grey-item-amount">₱121B</div>
+      </div>
+
+      <div class="grey-item">
+        <div class="grey-item-icon">💰</div>
+        <div class="grey-item-body">
+          <div class="grey-item-title">Intelligence & Confidential Funds</div>
+          <div class="grey-item-desc">Legally exempt from full public disclosure. Spent on national security — or at least, that's what we're told. No breakdown available.</div>
+        </div>
+        <div class="grey-item-amount">₱68B</div>
+      </div>
+
+    </div>
+
+    <div class="grey-disclaimer">
+      ⚠️ This section contains no accusations against any individual. All figures are derived from official government data — DBM, COA, BTr, and PhilGEPS. Gaps shown here are mathematical discrepancies between what was collected, what was allocated, and what can be verified through public procurement records. Sources available at data.gov.ph and coa.gov.ph.
+    </div>
+  </div>
+</div>
+
+<!-- WHAT IT MEANS FOR YOU -->
+<div class="means-section">
+  <div class="section-title">Step 5 — What this means for you</div>
+  <div class="section-heading">If you earn ₱500,000 a year, here's your personal tax split.</div>
+  <div class="means-grid">
+    <div class="means-card fade-in">
+      <div class="means-emoji">📚</div>
+      <div class="means-amount">₱9,000</div>
+      <div class="means-label">Goes to education</div>
+    </div>
+    <div class="means-card fade-in">
+      <div class="means-emoji">💸</div>
+      <div class="means-amount">₱10,500</div>
+      <div class="means-label">Goes to paying government debt</div>
+    </div>
+    <div class="means-card fade-in">
+      <div class="means-emoji">🏗️</div>
+      <div class="means-amount">₱7,000</div>
+      <div class="means-label">Goes to roads and buildings</div>
+    </div>
+    <div class="means-card fade-in">
+      <div class="means-emoji">🏥</div>
+      <div class="means-amount">₱4,500</div>
+      <div class="means-label">Goes to health</div>
+    </div>
+    <div class="means-card fade-in">
+      <div class="means-emoji">🕳️</div>
+      <div class="means-amount">₱8,100</div>
+      <div class="means-label">Goes into the Grey Area — unaccounted</div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <strong>Filipino People's Money Tracker</strong> — A public transparency tool for Filipino citizens.<br>
+  Data sourced from:
+  <a href="https://www.dbm.gov.ph" target="_blank">DBM</a> ·
+  <a href="https://www.treasury.gov.ph" target="_blank">Bureau of Treasury</a> ·
+  <a href="https://www.bir.gov.ph" target="_blank">BIR</a> ·
+  <a href="https://www.philgeps.gov.ph" target="_blank">PhilGEPS</a> ·
+  <a href="https://www.coa.gov.ph" target="_blank">Commission on Audit</a> ·
+  <a href="https://data.gov.ph" target="_blank">Open Data Philippines</a><br><br>
+  This tool does not make accusations against any individual. It shows publicly available numbers.<br>
+  Figures are based on 2024 national budget data. Updated as new data is published.<br><br>
+  Built for every Filipino who ever wondered where their money goes. 🇵🇭
+</footer>
+
+<script>
+  // Fade in on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(el => {
+      if (el.isIntersecting) {
+        el.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+  // Animate bars on scroll
+  const barObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.querySelectorAll('.peso-bar').forEach(bar => {
+          const target = bar.getAttribute('data-width');
+          setTimeout(() => { bar.style.width = target; }, 200);
+        });
+      }
+    });
+  }, { threshold: 0.3 });
+
+  document.querySelectorAll('.peso-card').forEach(card => barObserver.observe(card));
+</script>
+</body>
+</html>
